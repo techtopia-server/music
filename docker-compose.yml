@@ -1,0 +1,29 @@
+version: '3'
+services:
+  mopidy:
+    image: jaedb/iris
+    volumes:
+      - $MEDIA_LOCATION/music:/var/lib/mopidy/media/music:ro
+      - $STACK_DATA/local:/var/lib/mopidy/local
+      - $STACK_DIR/mopidy/mopidy.conf:/config/mopidy.conf
+      - snapfiles:/tmp/snap
+    ports:
+      - 127.0.0.1:6600:6600
+      - 127.0.0.1:6680:6680
+    user: $PUID:$PGID 
+    depends_on:
+      - snapcast
+  snapcast:
+    build: 'snapcast'
+    volumes:
+      - snapfiles:/tmp/snap
+      - $STACK_DIR/snapcast/snapserver.conf:/configs/snapserver.conf
+    network_mode: host
+  lpstream:
+    build: 'lp'
+    volumes:
+      - snapfiles:/tmp/snap
+    depends_on:
+      - snapcast
+volumes:
+  snapfiles:
